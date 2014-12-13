@@ -50,7 +50,9 @@
   :group 'helm)
 
 (defcustom helm-w32-launcher-csc-executable (executable-find "csc")
-  "The C# compiler executable."
+  "The C# compiler executable.
+It can be either a file name or nil, in which case auto-detection is
+attempted."
   :type '(choice (file :tag "Path")
                  (const :tag "Try to guess" nil))
   :group 'helm-w32-launcher)
