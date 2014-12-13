@@ -51,6 +51,8 @@
 
 (defcustom helm-w32-launcher-csc-executable (executable-find "csc")
   "The C# compiler executable."
+  :type '(choice (file :tag "Path")
+                 (const :tag "Try to guess" nil))
   :group 'helm-w32-launcher)
 
 ;;;###autoload
