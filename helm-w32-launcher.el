@@ -131,13 +131,7 @@ Please set `helm-w32-launcher-csc-executable'"))))
 
 (defun helm-w32-launcher--slash-to-backslash (string)
   "Return a new STRING with all slashes replaced with backslashes."
-  (save-match-data
-    (with-temp-buffer
-      (insert string)
-      (goto-char (point-min))
-      (while (search-forward "/" nil t)
-        (replace-match "\\" nil t))
-      (buffer-string))))
+  (replace-regexp-in-string (rx "/") "\\" string t t))
 
 (put 'helm-w32-launcher-process-returned-non-zero
      'error-conditions '(helm-w32-launcher-process-returned-non-zero error))
