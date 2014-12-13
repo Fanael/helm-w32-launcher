@@ -52,7 +52,8 @@
 (defcustom helm-w32-launcher-csc-executable (executable-find "csc")
   "The C# compiler executable.
 It can be either a file name or nil, in which case auto-detection is
-attempted."
+attempted.
+It's used only once, to compile the C# helper."
   :type '(choice (file :tag "Path")
                  (const :tag "Try to guess" nil))
   :group 'helm-w32-launcher)
