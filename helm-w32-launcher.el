@@ -57,11 +57,18 @@ attempted."
                  (const :tag "Try to guess" nil))
   :group 'helm-w32-launcher)
 
+(defcustom helm-w32-launcher-use-cache t
+  "Whether to cache the Start Menu entries.
+If non-nil, the default, cache them."
+  :type 'boolean
+  :group 'helm-w32-launcher)
+
 ;;;###autoload
 (defun helm-w32-launcher ()
   "Launch a program as if from the Start Menu.
-This function caches the Start Menu entries, use
-`helm-w32-launcher-flush-cache' to flush the cache."
+When `helm-w32-launcher-use-cache' is non-nil, this function caches
+the Start Menu entries, use `helm-w32-launcher-flush-cache' to flush
+the cache."
   (interactive)
   ;; Get the entries first, because Helm has a tendency to silence errors.
   (let ((entries (helm-w32-launcher--get-entries)))
@@ -82,12 +89,14 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
   (setq helm-w32-launcher--entry-cache nil))
 
 (defun helm-w32-launcher--get-entries ()
-  "Get Start Menu entries.
-This function caches the Start Menu entries, use
-`helm-w32-launcher-flush-cache' to flush the cache."
-  (if helm-w32-launcher--entry-cache
-      helm-w32-launcher--entry-cache
-    (setq helm-w32-launcher--entry-cache (helm-w32-launcher--call-external))))
+  "Get Start Menu entries, possibly using the cache."
+  (cond
+   ((not helm-w32-launcher-use-cache)
+    (helm-w32-launcher--call-external))
+   (helm-w32-launcher--entry-cache
+    helm-w32-launcher--entry-cache)
+   (t
+    (setq helm-w32-launcher--entry-cache (helm-w32-launcher--call-external)))))
 
 (defun helm-w32-launcher--launch (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH."

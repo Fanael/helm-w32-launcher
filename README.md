@@ -29,8 +29,9 @@ Call
 
 and select the program you want to launch.
 
-The Start Menu entries are cached to avoid process spawns and disk I/O. To flush
-the cache to see the current Start Menu contents, use
+If `helm-w32-launcher-use-cache` is non-nil (the default), the Start Menu
+entries are cached to avoid process spawns and disk I/O. To flush the cache to
+see the current Start Menu contents, use
 
     M-x helm-w32-launcher-flush-cache
 
