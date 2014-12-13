@@ -188,7 +188,8 @@ The PROGRAM's output is returned as a string."
                          (expand-file-name (car installed-fx-dir)
                                            fx-parent-dir))))
           (when (file-exists-p csc-path)
-            (cl-return-from return csc-path)))))))
+            (cl-return-from return csc-path)))))
+    nil))
 
 (provide 'helm-w32-launcher)
 ;;; helm-w32-launcher.el ends here
