@@ -121,11 +121,23 @@ Please set `helm-w32-launcher-csc-executable'"))))
       (helm-w32-launcher--call-process-get-output
        helm-w32-launcher-csc-executable
        "/nologo" "/t:exe" "/debug-" "/o"
-       (concat "/out:" helm-w32-launcher--external-program-name)
-       helm-w32-launcher--external-program-source)
+       (concat "/out:" (helm-w32-launcher--slash-to-backslash
+                        helm-w32-launcher--external-program-name))
+       (helm-w32-launcher--slash-to-backslash
+        helm-w32-launcher--external-program-source))
       ;; Compiled successfully, try to run it again.
       (helm-w32-launcher--call-process-get-output
        helm-w32-launcher--external-program-name)))))
+
+(defun helm-w32-launcher--slash-to-backslash (string)
+  "Return a new STRING with all slashes replaced with backslashes."
+  (save-match-data
+    (with-temp-buffer
+      (insert string)
+      (goto-char (point-min))
+      (while (search-forward "/" nil t)
+        (replace-match "\\" nil t))
+      (buffer-string))))
 
 (put 'helm-w32-launcher-process-returned-non-zero
      'error-conditions '(helm-w32-launcher-process-returned-non-zero error))
