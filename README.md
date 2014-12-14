@@ -23,11 +23,21 @@ as the Emacs Lisp code and to set up autoloads and/or requires as necessary.
 
 ## Usage
 
-Call
+To run a program normally:
 
     M-x helm-w32-launcher
 
-and select the program you want to launch.
+To run a program with elevated privileges:
+
+    M-x helm-w32-launcher-elevated
+
+To open a directory a shortcut is in:
+
+    M-x helm-w32-launcher-open-shortcut-directory
+
+To open the property page of a shortcut:
+
+    M-x helm-w32-launcher-open-shortcut-properties
 
 If `helm-w32-launcher-use-cache` is non-nil (the default), the Start Menu
 entries are cached to avoid process spawns and disk I/O. To flush the cache to
