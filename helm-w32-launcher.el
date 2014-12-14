@@ -88,6 +88,15 @@ the cache."
   (interactive)
   (helm-w32-launcher--helm #'helm-w32-launcher--launch-elevated))
 
+;;;###autoload
+(defun helm-w32-launcher-open-shortcut-directory ()
+  "Open the directory of the selected shortcut.
+When `helm-w32-launcher-use-cache' is non-nil, this function caches
+the Start Menu entries, use `helm-w32-launcher-flush-cache' to flush
+the cache."
+  (interactive)
+  (helm-w32-launcher--helm #'helm-w32-launcher--open-directory))
+
 (defvar helm-w32-launcher--entry-cache nil
   "The Start Menu entry cache, as returned by the helper program.
 It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
@@ -125,6 +134,10 @@ ACTION is the function to call upon selecting a candidate."
 (defun helm-w32-launcher--launch-elevated (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH with elevated privileges."
   (w32-shell-execute "runas" shortcut-path))
+
+(defun helm-w32-launcher--open-directory (shortcut-path)
+  "Open the directory of SHORTCUT-PATH."
+  (w32-shell-execute "open" (file-name-directory shortcut-path)))
 
 (defun helm-w32-launcher--show-path (candidates _source)
   "Add the full paths to the displayed list of CANDIDATES."
