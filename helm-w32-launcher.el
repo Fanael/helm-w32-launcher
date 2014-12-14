@@ -136,7 +136,7 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 Please set `helm-w32-launcher-csc-executable'"))))
       (helm-w32-launcher--call-process-get-output
        helm-w32-launcher-csc-executable
-       "/nologo" "/t:exe" "/debug-" "/o"
+       "/nologo" "/t:exe" "/debug-" "/utf8output" "/o"
        (concat "/out:" (helm-w32-launcher--slash-to-backslash
                         helm-w32-launcher--external-program-name))
        (helm-w32-launcher--slash-to-backslash
@@ -159,7 +159,8 @@ Please set `helm-w32-launcher-csc-executable'"))))
 PROGRAM and ARGS are as in `call-process'.
 The PROGRAM's output is returned as a string."
   (with-temp-buffer
-    (let* ((error-code (apply #'call-process program nil t nil args))
+    (let* ((coding-system-for-read 'utf-8)
+           (error-code (apply #'call-process program nil t nil args))
            (result (buffer-substring-no-properties 1 (1+ (buffer-size)))))
       (when (/= 0 error-code)
         (signal 'helm-w32-launcher-process-returned-non-zero

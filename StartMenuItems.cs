@@ -39,6 +39,7 @@ class StartMenuItems
             shortcuts.AddRange(Directory.GetFiles(path, "*.lnk", SearchOption.AllDirectories));
         StringBuilder result = new StringBuilder(65536);
         PrintReadably(result, shortcuts);
+        Console.OutputEncoding = Encoding.UTF8;
         Console.Write(result);
     }
 
