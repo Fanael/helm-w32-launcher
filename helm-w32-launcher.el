@@ -64,6 +64,12 @@ If non-nil, the default, cache them."
   :type 'boolean
   :group 'helm-w32-launcher)
 
+(defcustom helm-w32-launcher-fuzzy-match nil
+  "Whether to enable fuzzy matching in `helm-w32-launcher'.
+If non-nil, enable fuzzy matching."
+  :type 'boolean
+  :group 'helm-w32-launcher)
+
 ;;;###autoload
 (defun helm-w32-launcher ()
   "Launch a program as if from the Start Menu.
@@ -73,12 +79,13 @@ the cache."
   (interactive)
   ;; Get the entries first, because Helm has a tendency to silence errors.
   (let ((entries (helm-w32-launcher--get-entries)))
-    (helm :sources
-          `((candidates . ,entries)
-            (name . "W32 Launcher")
-            (action . helm-w32-launcher--launch)
-            (filtered-candidate-transformer . helm-w32-launcher--show-path))
-          :buffer "*helm w32-launcher*")))
+    (helm :buffer "*helm w32-launcher*"
+          :sources
+          (helm-build-sync-source "W32 Launcher"
+            :candidates entries
+            :fuzzy-match helm-w32-launcher-fuzzy-match
+            :action #'helm-w32-launcher--launch
+            :filtered-candidate-transformer #'helm-w32-launcher--show-path))))
 
 (defvar helm-w32-launcher--entry-cache nil
   "The Start Menu entry cache, as returned by the helper program.
