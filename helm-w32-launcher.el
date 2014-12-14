@@ -161,8 +161,7 @@ ACTION is the function to call upon selecting a candidate."
                   (cdr candidate)))
           candidates))
 
-;;;###autoload
-(defvar helm-w32-launcher--package-directory
+(defconst helm-w32-launcher--package-directory
   (file-name-directory (or load-file-name default-directory)))
 (defconst helm-w32-launcher--helper-source
   (expand-file-name "StartMenuItems.cs" helm-w32-launcher--package-directory))
