@@ -81,7 +81,7 @@ the cache."
           :buffer "*helm w32-launcher*")))
 
 (defvar helm-w32-launcher--entry-cache nil
-  "The Start Menu entry cache, as returned by the external program.
+  "The Start Menu entry cache, as returned by the helper program.
 It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 
 (defun helm-w32-launcher-flush-cache ()
@@ -93,11 +93,11 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
   "Get Start Menu entries, possibly using the cache."
   (cond
    ((not helm-w32-launcher-use-cache)
-    (helm-w32-launcher--call-external))
+    (helm-w32-launcher--call-helper))
    (helm-w32-launcher--entry-cache
     helm-w32-launcher--entry-cache)
    (t
-    (setq helm-w32-launcher--entry-cache (helm-w32-launcher--call-external)))))
+    (setq helm-w32-launcher--entry-cache (helm-w32-launcher--call-helper)))))
 
 (defun helm-w32-launcher--launch (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH."
@@ -115,19 +115,18 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 ;;;###autoload
 (defvar helm-w32-launcher--package-directory
   (file-name-directory (or load-file-name default-directory)))
-(defconst helm-w32-launcher--external-program-source
+(defconst helm-w32-launcher--helper-source
   (expand-file-name "StartMenuItems.cs" helm-w32-launcher--package-directory))
-(defconst helm-w32-launcher--external-program-name
+(defconst helm-w32-launcher--helper-name
   (expand-file-name "StartMenuItems.exe" helm-w32-launcher--package-directory))
 
-(defun helm-w32-launcher--call-external ()
-  "Call the external program to get the list of Start Menu items."
+(defun helm-w32-launcher--call-helper ()
+  "Call the helper program to get the list of Start Menu items."
   (read
    (condition-case nil
-       (helm-w32-launcher--call-process
-        helm-w32-launcher--external-program-name)
+       (helm-w32-launcher--call-process helm-w32-launcher--helper-name)
      (file-error
-      ;; The external program not found, try to compile it.
+      ;; The helper program not found, try to compile it.
       (unless helm-w32-launcher-csc-executable
         (setq helm-w32-launcher-csc-executable
               (or (helm-w32-launcher--guess-csc-executable)
@@ -137,12 +136,10 @@ Please set `helm-w32-launcher-csc-executable'"))))
        helm-w32-launcher-csc-executable
        "/nologo" "/t:exe" "/debug-" "/utf8output" "/o"
        (concat "/out:" (helm-w32-launcher--slash-to-backslash
-                        helm-w32-launcher--external-program-name))
-       (helm-w32-launcher--slash-to-backslash
-        helm-w32-launcher--external-program-source))
+                        helm-w32-launcher--helper-name))
+       (helm-w32-launcher--slash-to-backslash helm-w32-launcher--helper-source))
       ;; Compiled successfully, try to run it again.
-      (helm-w32-launcher--call-process
-       helm-w32-launcher--external-program-name)))))
+      (helm-w32-launcher--call-process helm-w32-launcher--helper-name)))))
 
 (defun helm-w32-launcher--slash-to-backslash (string)
   "Return a new STRING with all slashes replaced with backslashes."
