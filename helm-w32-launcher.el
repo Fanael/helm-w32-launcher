@@ -74,7 +74,7 @@ the cache."
   ;; Get the entries first, because Helm has a tendency to silence errors.
   (let ((entries (helm-w32-launcher--get-entries)))
     (helm :sources
-          `((candidates . ,(lambda () entries))
+          `((candidates . ,entries)
             (name . "W32 Launcher")
             (action . helm-w32-launcher--launch)
             (filtered-candidate-transformer . helm-w32-launcher--show-path))
