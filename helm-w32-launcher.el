@@ -124,7 +124,7 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
   "Call the external program to get the list of Start Menu items."
   (read
    (condition-case nil
-       (helm-w32-launcher--call-process-get-output
+       (helm-w32-launcher--call-process
         helm-w32-launcher--external-program-name)
      (file-error
       ;; The external program not found, try to compile it.
@@ -133,7 +133,7 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
               (or (helm-w32-launcher--guess-csc-executable)
                   (error "Can't guess the path to csc.exe
 Please set `helm-w32-launcher-csc-executable'"))))
-      (helm-w32-launcher--call-process-get-output
+      (helm-w32-launcher--call-process
        helm-w32-launcher-csc-executable
        "/nologo" "/t:exe" "/debug-" "/utf8output" "/o"
        (concat "/out:" (helm-w32-launcher--slash-to-backslash
@@ -141,7 +141,7 @@ Please set `helm-w32-launcher-csc-executable'"))))
        (helm-w32-launcher--slash-to-backslash
         helm-w32-launcher--external-program-source))
       ;; Compiled successfully, try to run it again.
-      (helm-w32-launcher--call-process-get-output
+      (helm-w32-launcher--call-process
        helm-w32-launcher--external-program-name)))))
 
 (defun helm-w32-launcher--slash-to-backslash (string)
@@ -153,10 +153,10 @@ Please set `helm-w32-launcher-csc-executable'"))))
 (put 'helm-w32-launcher-process-returned-non-zero
      'error-message "Process returned non-zero")
 
-(defun helm-w32-launcher--call-process-get-output (program &rest args)
+(defun helm-w32-launcher--call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
 PROGRAM and ARGS are as in `call-process'.
-The PROGRAM's output is returned as a string."
+The PROGRAM's output, decoded using UTF-8, is returned as a string."
   (with-temp-buffer
     (let* ((coding-system-for-read 'utf-8)
            (error-code (apply #'call-process program nil t nil args))
