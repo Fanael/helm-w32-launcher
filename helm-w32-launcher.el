@@ -100,15 +100,13 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 (defun helm-w32-launcher--helm (action)
   "Execute the Helm source.
 ACTION is the function to call upon selecting a candidate."
-  ;; Get the entries first, because Helm has a tendency to silence errors.
-  (let ((entries (helm-w32-launcher--get-entries)))
-    (helm :buffer "*helm w32-launcher*"
-          :sources
-          (helm-build-sync-source "W32 Launcher"
-            :candidates entries
-            :fuzzy-match helm-w32-launcher-fuzzy-match
-            :action action
-            :filtered-candidate-transformer #'helm-w32-launcher--show-path))))
+  (helm :buffer "*helm w32-launcher*"
+        :sources
+        (helm-build-sync-source "W32 Launcher"
+          :candidates (helm-w32-launcher--get-entries)
+          :fuzzy-match helm-w32-launcher-fuzzy-match
+          :action action
+          :filtered-candidate-transformer #'helm-w32-launcher--show-path)))
 
 (defun helm-w32-launcher--get-entries ()
   "Get Start Menu entries, possibly using the cache."
