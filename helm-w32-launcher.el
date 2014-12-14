@@ -126,6 +126,7 @@ the cache."
   "The Start Menu entry cache, as returned by the helper program.
 It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 
+;;;###autoload
 (defun helm-w32-launcher-flush-cache ()
   "Flush the internal `helm-w32-launcher' cache."
   (interactive)
