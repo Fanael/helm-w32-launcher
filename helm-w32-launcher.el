@@ -76,6 +76,16 @@ If non-nil, enable fuzzy matching."
   :type 'boolean
   :group 'helm-w32-launcher)
 
+(defgroup helm-w32-launcher-faces nil
+  "`helm-w32-launcher' faces."
+  :group 'helm-w32-launcher
+  :group 'helm-faces)
+
+(defface helm-w32-launcher-path
+  '((t :inherit font-lock-comment-face))
+  "Face to highlight full paths of Start Menu entries."
+  :group 'helm-w32-launcher-faces)
+
 ;;;###autoload
 (defun helm-w32-launcher ()
   "Launch a program as if from the Start Menu.
@@ -163,7 +173,7 @@ ACTION is the function to call upon selecting a candidate."
   (mapcar (lambda (candidate)
             (cons (concat (car candidate)
                           (propertize (concat " [" (cdr candidate) "]")
-                                      'face 'font-lock-comment-face))
+                                      'face 'helm-w32-launcher-path))
                   (cdr candidate)))
           candidates))
 
