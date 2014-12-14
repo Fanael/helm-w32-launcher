@@ -107,9 +107,8 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
   "Add the full paths to the displayed list of CANDIDATES."
   (mapcar (lambda (candidate)
             (cons (concat (car candidate)
-                          (propertize
-                           (concat " [" (cdr candidate) "]")
-                           'face 'font-lock-comment-face))
+                          (propertize (concat " [" (cdr candidate) "]")
+                                      'face 'font-lock-comment-face))
                   (cdr candidate)))
           candidates))
 
@@ -199,8 +198,7 @@ The PROGRAM's output is returned as a string."
                                   (substring (nth 0 file-and-attributes) 1)))
                        ;; The name is not a recognized version number, so drop
                        ;; the element.
-                       (error
-                        nil))))
+                       (error nil))))
               (directory-files-and-attributes
                fx-parent-dir nil (rx string-start "v") t))
              (lambda (a b)
