@@ -77,15 +77,16 @@ When `helm-w32-launcher-use-cache' is non-nil, this function caches
 the Start Menu entries, use `helm-w32-launcher-flush-cache' to flush
 the cache."
   (interactive)
-  ;; Get the entries first, because Helm has a tendency to silence errors.
-  (let ((entries (helm-w32-launcher--get-entries)))
-    (helm :buffer "*helm w32-launcher*"
-          :sources
-          (helm-build-sync-source "W32 Launcher"
-            :candidates entries
-            :fuzzy-match helm-w32-launcher-fuzzy-match
-            :action #'helm-w32-launcher--launch
-            :filtered-candidate-transformer #'helm-w32-launcher--show-path))))
+  (helm-w32-launcher--helm #'helm-w32-launcher--launch))
+
+;;;###autoload
+(defun helm-w32-launcher-elevated ()
+  "Launch a program as if from the Start Menu with elevated privileges.
+When `helm-w32-launcher-use-cache' is non-nil, this function caches
+the Start Menu entries, use `helm-w32-launcher-flush-cache' to flush
+the cache."
+  (interactive)
+  (helm-w32-launcher--helm #'helm-w32-launcher--launch-elevated))
 
 (defvar helm-w32-launcher--entry-cache nil
   "The Start Menu entry cache, as returned by the helper program.
@@ -95,6 +96,19 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
   "Flush the internal `helm-w32-launcher' cache."
   (interactive)
   (setq helm-w32-launcher--entry-cache nil))
+
+(defun helm-w32-launcher--helm (action)
+  "Execute the Helm source.
+ACTION is the function to call upon selecting a candidate."
+  ;; Get the entries first, because Helm has a tendency to silence errors.
+  (let ((entries (helm-w32-launcher--get-entries)))
+    (helm :buffer "*helm w32-launcher*"
+          :sources
+          (helm-build-sync-source "W32 Launcher"
+            :candidates entries
+            :fuzzy-match helm-w32-launcher-fuzzy-match
+            :action action
+            :filtered-candidate-transformer #'helm-w32-launcher--show-path))))
 
 (defun helm-w32-launcher--get-entries ()
   "Get Start Menu entries, possibly using the cache."
@@ -109,6 +123,10 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 (defun helm-w32-launcher--launch (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH."
   (w32-shell-execute "open" shortcut-path))
+
+(defun helm-w32-launcher--launch-elevated (shortcut-path)
+  "Open the shortcut located at SHORTCUT-PATH with elevated privileges."
+  (w32-shell-execute "runas" shortcut-path))
 
 (defun helm-w32-launcher--show-path (candidates _source)
   "Add the full paths to the displayed list of CANDIDATES."
