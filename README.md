@@ -5,8 +5,8 @@
 
 Launch programs from Start Menu using Emacs and Helm.
 
-Why would you want to that?
-  * It actually makes sense if you think is that Helm is superior to the Start
+Why would you want to do that?
+  * It actually makes sense if you agree that Helm is superior to the Start
     Menu/Screen search feature.
   * Besides, it's Emacs, so why not?
 
