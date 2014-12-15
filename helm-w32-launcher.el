@@ -189,7 +189,8 @@ ACTION is the function to call upon selecting a candidate."
   "Call the helper program to get the list of Start Menu items."
   (read
    (condition-case nil
-       (helm-w32-launcher--call-process helm-w32-launcher--helper-name)
+       (helm-w32-launcher--call-process helm-w32-launcher--helper-name
+                                        "ItemLister")
      (file-error
       ;; The helper program not found, try to compile it.
       (unless helm-w32-launcher-csc-executable
@@ -204,7 +205,8 @@ Please set `helm-w32-launcher-csc-executable'"))))
                         helm-w32-launcher--helper-name))
        (helm-w32-launcher--slash-to-backslash helm-w32-launcher--helper-source))
       ;; Compiled successfully, try to run it again.
-      (helm-w32-launcher--call-process helm-w32-launcher--helper-name)))))
+      (helm-w32-launcher--call-process helm-w32-launcher--helper-name
+                                       "ItemLister")))))
 
 (defun helm-w32-launcher--slash-to-backslash (string)
   "Return a new STRING with all slashes replaced with backslashes."
