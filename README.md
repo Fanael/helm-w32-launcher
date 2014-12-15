@@ -21,9 +21,10 @@ Other installation methods are unsupported. If you can't or don't want to use
 MELPA, you'll have to remember to put `StartMenuItems.cs` in the same directory
 as the Emacs Lisp code and to set up autoloads and/or requires as necessary.
 
-The first time `helm-w32-launcher` is called, the package tries to compile
-`StartMenuItems.cs`. If you have .NET 2.0 or newer installed, this should just
-work, so any errors messages from `csc.exe` should be reported as bugs.
+The first time one of the provided commands is called, the package tries to
+compile `StartMenuItems.cs`. If you have .NET 2.0 or newer installed, this
+should just work, so any errors messages from `csc.exe` should be reported as
+bugs.
 
 ## Usage
 
