@@ -54,7 +54,14 @@ directories is implemented in C#. Listing the entries is done there too, because
 recursive search with `directory-files`.
 
 The Emacs side does relatively little: it calls the C# code, reads the output
-using `read`, caches the entries and passes them to Helm.
+using `read`, caches the entries, passes them to Helm and calls the C# code to
+act on the selection again.
+
+The C# code actually executes the shortcut because even though
+`w32-shell-execute` exists, Emacs 24.3 and earlier use legacy codepage-based
+APIs, so they're unable to correctly start a shortcut from a path containing
+characters outside the current code page. .NET uses Unicode APIs, so it just
+works there.
 
 The first time `helm-w32-launcher` is called, it tries to compile
 `StartMenuItems.cs`. If you have .NET 2.0 or newer installed, this should just
