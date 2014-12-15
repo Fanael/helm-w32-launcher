@@ -147,11 +147,12 @@ ACTION is the function to call upon selecting a candidate."
   "Get Start Menu entries, possibly using the cache."
   (cond
    ((not helm-w32-launcher-use-cache)
-    (helm-w32-launcher--call-helper))
+    (helm-w32-launcher--call-helper-list-items))
    (helm-w32-launcher--entry-cache
     helm-w32-launcher--entry-cache)
    (t
-    (setq helm-w32-launcher--entry-cache (helm-w32-launcher--call-helper)))))
+    (setq helm-w32-launcher--entry-cache
+          (helm-w32-launcher--call-helper-list-items)))))
 
 (defun helm-w32-launcher--launch (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH."
@@ -185,28 +186,31 @@ ACTION is the function to call upon selecting a candidate."
 (defconst helm-w32-launcher--helper-name
   (expand-file-name "StartMenuItems.exe" helm-w32-launcher--package-directory))
 
-(defun helm-w32-launcher--call-helper ()
+(defun helm-w32-launcher--call-helper-list-items ()
   "Call the helper program to get the list of Start Menu items."
-  (read
-   (condition-case nil
-       (helm-w32-launcher--call-process helm-w32-launcher--helper-name
-                                        "ItemLister")
-     (file-error
-      ;; The helper program not found, try to compile it.
-      (unless helm-w32-launcher-csc-executable
-        (setq helm-w32-launcher-csc-executable
-              (or (helm-w32-launcher--guess-csc-executable)
-                  (error "Can't guess the path to csc.exe
+  (read (helm-w32-launcher--call-helper "ItemLister")))
+
+(defun helm-w32-launcher--call-helper (&rest args)
+  "Call the helper program with ARGS and return its output.."
+  (condition-case nil
+      (apply #'helm-w32-launcher--call-process
+             helm-w32-launcher--helper-name args)
+    (file-error
+     ;; The helper program not found, try to compile it.
+     (unless helm-w32-launcher-csc-executable
+       (setq helm-w32-launcher-csc-executable
+             (or (helm-w32-launcher--guess-csc-executable)
+                 (error "Can't guess the path to csc.exe
 Please set `helm-w32-launcher-csc-executable'"))))
-      (helm-w32-launcher--call-process
-       helm-w32-launcher-csc-executable
-       "/nologo" "/t:exe" "/debug-" "/utf8output" "/o"
-       (concat "/out:" (helm-w32-launcher--slash-to-backslash
-                        helm-w32-launcher--helper-name))
-       (helm-w32-launcher--slash-to-backslash helm-w32-launcher--helper-source))
-      ;; Compiled successfully, try to run it again.
-      (helm-w32-launcher--call-process helm-w32-launcher--helper-name
-                                       "ItemLister")))))
+     (helm-w32-launcher--call-process
+      helm-w32-launcher-csc-executable
+      "/nologo" "/t:exe" "/debug-" "/utf8output" "/o"
+      (concat "/out:" (helm-w32-launcher--slash-to-backslash
+                       helm-w32-launcher--helper-name))
+      (helm-w32-launcher--slash-to-backslash helm-w32-launcher--helper-source))
+     ;; Compiled successfully, try to run it again.
+     (apply #'helm-w32-launcher--call-process
+            helm-w32-launcher--helper-name args))))
 
 (defun helm-w32-launcher--slash-to-backslash (string)
   "Return a new STRING with all slashes replaced with backslashes."
