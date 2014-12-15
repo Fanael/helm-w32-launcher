@@ -198,8 +198,7 @@ See `w32-shell-execute' for details."
   ;; legacy APIs. The helper OTOH will use the Unicode API calls.
   (helm-w32-launcher--call-helper
    "ProcessStarter"
-   ;; Emacs would mess up the encoding here, too, so base64-encode the
-   ;; arguments.
+   ;; Emacs would mess up the encoding here, too, so encode the arguments.
    (helm-w32-launcher--encode-string operation)
    (helm-w32-launcher--encode-string shortcut)))
 
