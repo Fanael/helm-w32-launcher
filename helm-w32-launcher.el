@@ -2,7 +2,7 @@
 
 ;; Author: Fanael Linithien <fanael4@gmail.com>
 ;; URL: https://github.com/Fanael/helm-w32-launcher
-;; Version: 0.1.3
+;; Version: 0.1.4
 ;; Package-Requires: ((emacs "24") (helm "1.6.5") (cl-lib "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
