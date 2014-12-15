@@ -156,19 +156,19 @@ ACTION is the function to call upon selecting a candidate."
 
 (defun helm-w32-launcher--launch (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH."
-  (w32-shell-execute "open" shortcut-path))
+  (helm-w32-launcher--shell-execute "open" shortcut-path))
 
 (defun helm-w32-launcher--launch-elevated (shortcut-path)
   "Open the shortcut located at SHORTCUT-PATH with elevated privileges."
-  (w32-shell-execute "runas" shortcut-path))
+  (helm-w32-launcher--shell-execute "runas" shortcut-path))
 
 (defun helm-w32-launcher--open-directory (shortcut-path)
   "Open the directory of SHORTCUT-PATH."
-  (w32-shell-execute "open" (file-name-directory shortcut-path)))
+  (helm-w32-launcher--shell-execute "open" (file-name-directory shortcut-path)))
 
 (defun helm-w32-launcher--open-properties (shortcut-path)
   "Open the properites of the shortcut at SHORTCUT-PATH."
-  (w32-shell-execute "properties" shortcut-path))
+  (helm-w32-launcher--shell-execute "properties" shortcut-path))
 
 (defun helm-w32-launcher--show-path (candidates _source)
   "Add the full paths to the displayed list of CANDIDATES."
@@ -189,6 +189,19 @@ ACTION is the function to call upon selecting a candidate."
 (defun helm-w32-launcher--call-helper-list-items ()
   "Call the helper program to get the list of Start Menu items."
   (read (helm-w32-launcher--call-helper "ItemLister")))
+
+(defun helm-w32-launcher--shell-execute (operation shortcut)
+  "Get Windows to perform OPERATION on SHORTCUT.
+See `w32-shell-execute' for details."
+  ;; Do it via the helper, because Emacs 24.3 and earlier are unable to cope
+  ;; with characters outside of the current codepage in paths because they use
+  ;; legacy APIs. The helper OTOH will use the Unicode API calls.
+  (helm-w32-launcher--call-helper
+   "ProcessStarter"
+   ;; Emacs would mess up the encoding here, too, so base64-encode the
+   ;; arguments.
+   (helm-w32-launcher--encode-string operation)
+   (helm-w32-launcher--encode-string shortcut)))
 
 (defun helm-w32-launcher--call-helper (&rest args)
   "Call the helper program with ARGS and return its output.."
@@ -211,6 +224,10 @@ Please set `helm-w32-launcher-csc-executable'"))))
      ;; Compiled successfully, try to run it again.
      (apply #'helm-w32-launcher--call-process
             helm-w32-launcher--helper-name args))))
+
+(defun helm-w32-launcher--encode-string (string)
+  "Encode a STRING by treating it as UTF-8 and base64-encoding it."
+  (base64-encode-string (encode-coding-string string 'utf-8)))
 
 (defun helm-w32-launcher--slash-to-backslash (string)
   "Return a new STRING with all slashes replaced with backslashes."

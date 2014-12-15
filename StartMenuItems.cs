@@ -24,6 +24,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -95,6 +96,23 @@ internal class ItemLister : ICommand
         IntPtr token,
         uint flags,
         StringBuilder path);
+}
+
+internal class ProcessStarter : ICommand
+{
+    public void Run(string[] args)
+    {
+        ProcessStartInfo processStartInfo = new ProcessStartInfo();
+        processStartInfo.UseShellExecute = true;
+        processStartInfo.Verb = DecodeArg(args[1]);
+        processStartInfo.FileName = DecodeArg(args[2]);
+        Process.Start(processStartInfo);
+    }
+
+    private static string DecodeArg(string arg)
+    {
+        return Encoding.UTF8.GetString(Convert.FromBase64String(arg));
+    }
 }
 
 internal abstract class LispPrinter
