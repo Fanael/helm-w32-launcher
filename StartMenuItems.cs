@@ -36,6 +36,7 @@ internal interface ICommand
 
 internal class Program
 {
+    [STAThread]
     private static int Main(string[] args)
     {
         try
@@ -102,17 +103,62 @@ internal class ProcessStarter : ICommand
 {
     public void Run(string[] args)
     {
+        string verb = DecodeArg(args[1]);
+        string fileName = DecodeArg(args[2]);
+        if (string.Equals(verb, "--explore--"))
+        {
+            OpenExplorerOnFile(fileName);
+        }
+        else
+        {
+            ShellExecute(verb, fileName);
+        }
+    }
+
+    private static void ShellExecute(string verb, string fileName)
+    {
         ProcessStartInfo processStartInfo = new ProcessStartInfo();
         processStartInfo.UseShellExecute = true;
-        processStartInfo.Verb = DecodeArg(args[1]);
-        processStartInfo.FileName = DecodeArg(args[2]);
+        processStartInfo.Verb = verb;
+        processStartInfo.FileName = fileName;
         Process.Start(processStartInfo);
+    }
+
+    private static void OpenExplorerOnFile(string fileName)
+    {
+        IntPtr pidlList = ILCreateFromPathW(fileName);
+        if (pidlList == IntPtr.Zero)
+        {
+            throw new ExternalException("ILCreateFromPathW call failed");
+        }
+
+        try
+        {
+            Marshal.ThrowExceptionForHR(SHOpenFolderAndSelectItems(pidlList, 0, IntPtr.Zero, 0));
+        }
+        finally
+        {
+            ILFree(pidlList);
+        }
     }
 
     private static string DecodeArg(string arg)
     {
         return Encoding.UTF8.GetString(Convert.FromBase64String(arg));
     }
+
+    [DllImport("shell32.dll")]
+    private static extern void ILFree(IntPtr pidlList);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+    private static extern IntPtr ILCreateFromPathW(string pszPath);
+
+    [DllImport("shell32.dll")]
+    private static extern int SHOpenFolderAndSelectItems(
+        IntPtr pidlList,
+        uint cild,
+        IntPtr children,
+        uint flags);
 }
 
 internal abstract class LispPrinter

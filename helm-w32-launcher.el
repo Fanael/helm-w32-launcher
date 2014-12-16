@@ -164,7 +164,7 @@ ACTION is the function to call upon selecting a candidate."
 
 (defun helm-w32-launcher--open-directory (shortcut-path)
   "Open the directory of SHORTCUT-PATH."
-  (helm-w32-launcher--shell-execute "open" (file-name-directory shortcut-path)))
+  (helm-w32-launcher--shell-execute "--explore--" shortcut-path))
 
 (defun helm-w32-launcher--open-properties (shortcut-path)
   "Open the properites of the shortcut at SHORTCUT-PATH."
