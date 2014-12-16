@@ -83,13 +83,9 @@ internal class ItemLister : ICommand
         const int CSIDL_COMMON_STARTMENU = 0x16;
         const int MAX_PATH = 260;
         StringBuilder result = new StringBuilder(MAX_PATH);
-        int ok = NativeMethods.SHGetFolderPathW(
-            IntPtr.Zero, CSIDL_COMMON_STARTMENU, IntPtr.Zero, 0, result);
-        if (ok != 0)
-        {
-            throw new ExternalException(
-                "Failed to get common start menu path", ok);
-        }
+        Marshal.ThrowExceptionForHR(
+            NativeMethods.SHGetFolderPathW(
+                IntPtr.Zero, CSIDL_COMMON_STARTMENU, IntPtr.Zero, 0, result));
 
         return result.ToString();
     }
