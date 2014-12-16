@@ -81,7 +81,7 @@ internal class ItemLister : ICommand
         const int CSIDL_COMMON_STARTMENU = 0x16;
         const int MAX_PATH = 260;
         StringBuilder result = new StringBuilder(MAX_PATH);
-        int ok = SHGetFolderPath(IntPtr.Zero, CSIDL_COMMON_STARTMENU, IntPtr.Zero, 0, result);
+        int ok = NativeMethods.SHGetFolderPathW(IntPtr.Zero, CSIDL_COMMON_STARTMENU, IntPtr.Zero, 0, result);
         if (ok != 0)
         {
             throw new ExternalException("Failed to get common start menu path", ok);
@@ -89,14 +89,6 @@ internal class ItemLister : ICommand
 
         return result.ToString();
     }
-
-    [DllImport("shell32.dll")]
-    private static extern int SHGetFolderPath(
-        IntPtr owner,
-        int folder,
-        IntPtr token,
-        uint flags,
-        StringBuilder path);
 }
 
 internal class ProcessStarter : ICommand
@@ -126,7 +118,7 @@ internal class ProcessStarter : ICommand
 
     private static void OpenExplorerOnFile(string fileName)
     {
-        IntPtr pidlList = ILCreateFromPathW(fileName);
+        IntPtr pidlList = NativeMethods.ILCreateFromPathW(fileName);
         if (pidlList == IntPtr.Zero)
         {
             throw new ExternalException("ILCreateFromPathW call failed");
@@ -134,11 +126,11 @@ internal class ProcessStarter : ICommand
 
         try
         {
-            Marshal.ThrowExceptionForHR(SHOpenFolderAndSelectItems(pidlList, 0, IntPtr.Zero, 0));
+            Marshal.ThrowExceptionForHR(NativeMethods.SHOpenFolderAndSelectItems(pidlList, 0, IntPtr.Zero, 0));
         }
         finally
         {
-            ILFree(pidlList);
+            NativeMethods.ILFree(pidlList);
         }
     }
 
@@ -146,19 +138,6 @@ internal class ProcessStarter : ICommand
     {
         return Encoding.UTF8.GetString(Convert.FromBase64String(arg));
     }
-
-    [DllImport("shell32.dll")]
-    private static extern void ILFree(IntPtr pidlList);
-
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
-    private static extern IntPtr ILCreateFromPathW(string pszPath);
-
-    [DllImport("shell32.dll")]
-    private static extern int SHOpenFolderAndSelectItems(
-        IntPtr pidlList,
-        uint cild,
-        IntPtr children,
-        uint flags);
 }
 
 internal abstract class LispPrinter
@@ -209,4 +188,32 @@ internal abstract class LispPrinter
             this.result.Append('"');
         }
     }
+}
+
+internal abstract class NativeMethods
+{
+    private NativeMethods()
+    {
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+    public static extern int SHGetFolderPathW(
+        IntPtr owner,
+        int folder,
+        IntPtr token,
+        uint flags,
+        StringBuilder path);
+
+    [DllImport("shell32.dll", ExactSpelling = true)]
+    public static extern void ILFree(IntPtr pidlList);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+    public static extern IntPtr ILCreateFromPathW(string pszPath);
+
+    [DllImport("shell32.dll", ExactSpelling = true)]
+    public static extern int SHOpenFolderAndSelectItems(
+        IntPtr pidlList,
+        uint cild,
+        IntPtr children,
+        uint flags);
 }
