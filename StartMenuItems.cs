@@ -42,7 +42,8 @@ internal class Program
         try
         {
             Console.OutputEncoding = Encoding.UTF8;
-            ICommand command = (ICommand)Activator.CreateInstance(null, args[0]).Unwrap();
+            object obj = Activator.CreateInstance(null, args[0]).Unwrap();
+            ICommand command = (ICommand)obj;
             command.Run(args);
             return 0;
         }
@@ -61,7 +62,8 @@ internal class ItemLister : ICommand
         List<string> shortcuts = new List<string>(100);
         foreach (string path in GetStartMenuPaths())
         {
-            shortcuts.AddRange(Directory.GetFiles(path, "*.lnk", SearchOption.AllDirectories));
+            shortcuts.AddRange(Directory.GetFiles(
+                path, "*.lnk", SearchOption.AllDirectories));
         }
 
         Console.Write(LispPrinter.PrintStartMenuEntries(shortcuts));
@@ -81,10 +83,12 @@ internal class ItemLister : ICommand
         const int CSIDL_COMMON_STARTMENU = 0x16;
         const int MAX_PATH = 260;
         StringBuilder result = new StringBuilder(MAX_PATH);
-        int ok = NativeMethods.SHGetFolderPathW(IntPtr.Zero, CSIDL_COMMON_STARTMENU, IntPtr.Zero, 0, result);
+        int ok = NativeMethods.SHGetFolderPathW(
+            IntPtr.Zero, CSIDL_COMMON_STARTMENU, IntPtr.Zero, 0, result);
         if (ok != 0)
         {
-            throw new ExternalException("Failed to get common start menu path", ok);
+            throw new ExternalException(
+                "Failed to get common start menu path", ok);
         }
 
         return result.ToString();
@@ -126,7 +130,9 @@ internal class ProcessStarter : ICommand
 
         try
         {
-            Marshal.ThrowExceptionForHR(NativeMethods.SHOpenFolderAndSelectItems(pidlList, 0, IntPtr.Zero, 0));
+            Marshal.ThrowExceptionForHR(
+                NativeMethods.SHOpenFolderAndSelectItems(
+                    pidlList, 0, IntPtr.Zero, 0));
         }
         finally
         {
