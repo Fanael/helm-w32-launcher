@@ -142,12 +142,8 @@ internal class ProcessStarter : ICommand
     }
 }
 
-internal abstract class LispPrinter
+internal static class LispPrinter
 {
-    private LispPrinter()
-    {
-    }
-
     public static string PrintStartMenuEntries(IEnumerable<string> entryPaths)
     {
         Impl impl = new Impl();
@@ -192,12 +188,8 @@ internal abstract class LispPrinter
     }
 }
 
-internal abstract class NativeMethods
+internal static class NativeMethods
 {
-    private NativeMethods()
-    {
-    }
-
     [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern int SHGetFolderPathW(
         IntPtr owner,
