@@ -3,7 +3,7 @@
 
 # Helm W32 launcher
 
-Launch programs from Start Menu using Emacs and Helm.
+Launch programs from Start Menu from Emacs, using Helm.
 
 Why would you want to do that?
   * It actually makes sense if you agree that Helm is superior to the Start
