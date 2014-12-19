@@ -54,6 +54,13 @@ If non-nil, enable fuzzy matching."
   :type 'boolean
   :group 'helm-w32-launcher)
 
+(defcustom helm-w32-launcher-use-paths-for-completion nil
+  "Whether to consider shortcut paths when completing candidates.
+If non-nil, the pattern will be matched against full paths of shortcuts
+in addition to the shortcut names."
+  :type 'boolean
+  :group 'helm-w32-launcher)
+
 (defgroup helm-w32-launcher-faces nil
   "`helm-w32-launcher' faces."
   :group 'helm-w32-launcher
@@ -115,11 +122,19 @@ It's a list of (NAME . FULL-PATH-TO-LNK-FILE).")
 ACTION is the function to call upon selecting a candidate."
   (helm :buffer "*helm w32-launcher*"
         :sources
-        (helm-build-sync-source "W32 Launcher"
-          :candidates (helm-w32-launcher--get-entries)
-          :fuzzy-match helm-w32-launcher-fuzzy-match
-          :action action
-          :filtered-candidate-transformer #'helm-w32-launcher--show-path)))
+        (let ((name "W32 Launcher")
+              (entries (helm-w32-launcher--get-entries)))
+          (if helm-w32-launcher-use-paths-for-completion
+              (helm-build-sync-source name
+                :candidates (helm-w32-launcher--show-paths entries nil)
+                :fuzzy-match helm-w32-launcher-fuzzy-match
+                :action action)
+            (helm-build-sync-source name
+              :candidates entries
+              :fuzzy-match helm-w32-launcher-fuzzy-match
+              :action action
+              :filtered-candidate-transformer
+              #'helm-w32-launcher--show-paths)))))
 
 (defun helm-w32-launcher--get-entries ()
   "Get Start Menu entries, possibly using the cache."
@@ -148,8 +163,8 @@ ACTION is the function to call upon selecting a candidate."
   "Open the properites of the shortcut at SHORTCUT-PATH."
   (helm-w32-launcher--shell-execute "properties" shortcut-path))
 
-(defun helm-w32-launcher--show-path (candidates _source)
-  "Add the full paths to the displayed list of CANDIDATES."
+(defun helm-w32-launcher--show-paths (candidates _source)
+  "Add the full paths to the list of CANDIDATES."
   (mapcar (lambda (candidate)
             (cons (concat (car candidate)
                           (propertize (concat " [" (cdr candidate) "]")
