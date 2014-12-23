@@ -25,7 +25,7 @@
 ;;  * `helm-w32-launcher-open-shortcut-properties'
 
 ;;; Code:
-(require 'cl-lib)
+(eval-when-compile (require 'cl-lib))
 (require 'helm)
 
 (defgroup helm-w32-launcher nil
@@ -258,26 +258,21 @@ The PROGRAM's output, decoded using UTF-8, is returned as a string."
                     (cl-return-from return nil))))))
            (installed-fx-directories
             (sort
-             (cl-remove-if-not
-              (lambda (file-and-attributes)
-                (and (let ((dir-or-symlink (nth 1 file-and-attributes)))
-                       (or (eq dir-or-symlink t)
-                           (when (stringp dir-or-symlink)
-                             ;; It's a symlink, test if it points to a
-                             ;; directory.
-                             (file-directory-p (nth 0 file-and-attributes)))))
-                     (condition-case nil
-                         ;; We don't need the attributes anymore, replace them
-                         ;; with version lists to save some work further down
-                         ;; the road.
-                         (setcdr file-and-attributes
-                                 (version-to-list
-                                  (substring (nth 0 file-and-attributes) 1)))
-                       ;; The name is not a recognized version number, so drop
-                       ;; the element.
-                       (error nil))))
-              (directory-files-and-attributes
-               fx-parent-dir nil (rx string-start "v") t))
+             (apply
+              #'nconc
+              (mapcar
+               (lambda (name)
+                 (let ((length-without-last (1- (length name))))
+                   (and (= ?/ (aref name length-without-last))
+                        (condition-case nil
+                            ;; Add version lists to names to save some work
+                            ;; further down the road.
+                            (list (cons name (version-to-list
+                                              (substring
+                                               name 1 length-without-last))))
+                          ;; The name is not a valid version number, skip.
+                          (error '())))))
+               (file-name-all-completions "v" fx-parent-dir)))
              (lambda (a b)
                (version-list-< (cdr b) (cdr a))))))
       (dolist (installed-fx-dir installed-fx-directories)
