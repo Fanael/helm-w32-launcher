@@ -258,8 +258,8 @@ The PROGRAM's output, decoded using UTF-8, is returned as a string."
                     (cl-return-from return nil))))))
            (installed-fx-directories
             (sort
-             (apply
-              #'nconc
+             (delq
+              nil
               (mapcar
                (lambda (name)
                  (let ((length-without-last (1- (length name))))
@@ -267,11 +267,10 @@ The PROGRAM's output, decoded using UTF-8, is returned as a string."
                         (condition-case nil
                             ;; Add version lists to names to save some work
                             ;; further down the road.
-                            (list (cons name (version-to-list
-                                              (substring
-                                               name 1 length-without-last))))
+                            (cons name (version-to-list
+                                        (substring name 1 length-without-last)))
                           ;; The name is not a valid version number, skip.
-                          (error '())))))
+                          (error nil)))))
                (file-name-all-completions "v" fx-parent-dir)))
              (lambda (a b)
                (version-list-< (cdr b) (cdr a))))))
